@@ -1,6 +1,4 @@
-config.ini
 cache/*
-log.sqlite
 #temp
 plugins/temp/*
 
