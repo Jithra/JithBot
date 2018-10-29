@@ -1,2 +1,2 @@
-cd C:\Users\bmoss\Desktop\JithBot Projects\JithBot
+cd .
 py jithbot.py
