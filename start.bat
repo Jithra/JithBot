@@ -1,2 +1,1 @@
-cd .
 py jithbot.py
