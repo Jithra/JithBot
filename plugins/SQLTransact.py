@@ -1,5 +1,5 @@
 from util import Events
-from util import jithsql
+from util import Jithsql
 import discord
 import re
 import textwrap
@@ -27,9 +27,9 @@ class Plugin(object):
 
 
     async def process_transaction(self, message_object, command):
-        connection = jithsql.parse_connection()
+        connection = Jithsql.parse_connection()
         cursor = connection.cursor()
-        sql = jithsql.remove_command(command, message_object)
+        sql = Jithsql.remove_command(command, message_object)
         cursor.execute(sql)
         cursor.execute("COMMIT;")
         connection.close
@@ -38,11 +38,11 @@ class Plugin(object):
         return()
 
     async def process_selection(self, message_object, command):
-        connection = jithsql.parse_connection()
+        connection = Jithsql.parse_connection()
         cursor = connection.cursor()
-        sql = jithsql.remove_command(command, message_object)
+        sql = Jithsql.remove_command(command, message_object)
         cursor.execute(sql)
-        outputMessage = jithsql.format_output(cursor)
+        outputMessage = Jithsql.format_output(cursor)
         cursor.execute("COMMIT;")
         connection.close
         del cursor
@@ -51,19 +51,19 @@ class Plugin(object):
 
 
     async def process_messagestat(self, message_object, command):
-        messageBody = jithsql.remove_command(command, message_object)
-        connection = jithsql.parse_connection()
+        messageBody = Jithsql.remove_command(command, message_object)
+        connection = Jithsql.parse_connection()
         cursor = connection.cursor()
 
         if (messageBody.startswith('"') and messageBody.endswith('"')):
-            messageBody = jithsql.messagestat_formatting(messageBody)
+            messageBody = Jithsql.messagestat_formatting(messageBody)
             sql = ('EXEC messagestatliteral "' + messageBody + '", "' + str(message_object.server.id) + '"')
         else:
-            messageBody = jithsql.messagestat_formatting(messageBody)
+            messageBody = Jithsql.messagestat_formatting(messageBody)
             sql = ('EXEC messagestat "' + messageBody + '", "' + str(message_object.server.id) + '"')
 
         cursor.execute(sql)
-        outputMessage = jithsql.format_output(cursor)
+        outputMessage = Jithsql.format_output(cursor)
         cursor.execute("COMMIT;")
         connection.close
         del cursor

@@ -1,49 +1,74 @@
+import BotPreferences
+import discord
+import re
+import textwrap
+import pyodbc
+
 server = 'localhost\FORTUNABASE'
 database = 'db_discord'
 uid = 'jithbotdev'
 pwd = 'jbdev'
 driver= '{ODBC Driver 13 for SQL Server}'
 
-def parse_connection(self):
-        connection = pyodbc.connect('DRIVER='+self.driver+';PORT=1433;SERVER='+self.server+';PORT=1443;DATABASE='+self.database+';UID='+self.uid+';PWD='+ self.pwd)
-        return(connection)
+def parse_connection():
+    connection = pyodbc.connect('DRIVER='+driver+';PORT=1433;SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+uid+';PWD='+ pwd)
+    return(connection)
 
-def format_output(self, cursor):
-        #assign all the contents of the cursor to sqlOutput
-        #adding this note to see if git picks up changes
-        sqlOutput = cursor.fetchall()
-		#assign rowOutput to a blank value so it can be used with the += function
-        rowOutput = ''
-        columnHeaders = ''
-		#format each row and column so that it has a uniform length of 20 - also change the date format that ODBC outputs by default
-        for row in sqlOutput:
-            for column in row:
-                columnBody = str(column)
-                columnBody = re.sub("(?P<year>[0-9]{4,})-(?P<month>[0-9]{1,})-(?P<day>[0-9]{1,}) (?P<hour>[0-9]{1,}):(?P<minute>[0-9]{1,}):(?P<second>[0-9]{1,}).[0-9]{1,6}", "\g<year>-\g<month>-\g<day> \g<hour>:\g<minute>:\g<second>", columnBody)
+def remove_command(command, message_object):
+    message_object.content = re.sub('\\' + BotPreferences.BotPreferences.commandPrefix + command, '', message_object.content)
+    if message_object.content.startswith(' '):
+        message_object.content = message_object.content[1:]
+    return(message_object.content)
 
-                if len(columnBody) >= 20:
-                    columnBody = textwrap.shorten(columnBody, width = 20)
 
-                while len(columnBody) < 20:
-                    columnBody += ' '
+def messagestat_formatting(messageBody):
+    messageBody = re.sub(' ', '_', messageBody)
+    messageBody = re.sub("'", "''", messageBody)
+    if messageBody.startswith('"') and messageBody.endswith('"'):
+        messageBody = messageBody[1:]
+        messageBody = messageBody[:-1]
+    return(messageBody)
 
-                rowOutput += columnBody
 
-            rowOutput += '\n'
+def format_output(cursor):
+    #assign all the contents of the cursor to sqlOutput
+    sqlOutput = cursor.fetchall()
+	#assign rowOutput to a blank value so it can be used with the += function
+    rowOutput = ''
+    columnHeaders = ''
+	#format each row and column so that it has a uniform length of 20 - also change the date format that ODBC outputs by default
+    for row in sqlOutput:
+        for column in row:
+            columnBody = str(column)
+            columnBody = re.sub("(?P<year>[0-9]{4,})-(?P<month>[0-9]{1,})-(?P<day>[0-9]{1,}) (?P<hour>[0-9]{1,}):(?P<minute>[0-9]{1,}):(?P<second>[0-9]{1,}).[0-9]{1,6}", "\g<year>-\g<month>-\g<day> \g<hour>:\g<minute>:\g<second>", columnBody)
 
-	    #format the column headers in a similar fashion as the rows
-        for column in cursor.description:
-            columnHeader = str(column[0])
+            if len(columnBody) >= 20:
+                columnBody = textwrap.shorten(columnBody, width = 20)
 
-            while len(columnHeader) < 20:
-                columnHeader += ' '
-            columnHeaders += columnHeader
-        columnHeaders += '\n'
+            while len(columnBody) < 20:
+                columnBody += ' '
 
-        for columns in columnHeaders:
-            columnHeaders += '-'
+            rowOutput += columnBody
+        rowOutput += '\n'
 
-        columnHeaders = re.sub('_',' ', columnHeaders)
-        outputMessage = '```TSQL\n' + columnHeaders + '\n' + rowOutput + '```'
+    #format the column headers in a similar fashion as the rows
+    for column in cursor.description:
+        columnHeader = str(column[0])
 
-        return(outputMessage)
+        while len(columnHeader) < 20:
+            columnHeader += ' '
+        columnHeaders += columnHeader
+    columnHeaders += '\n'
+
+    for columns in columnHeaders:
+        columnHeaders += '-'
+
+    columnHeaders = re.sub('_',' ', columnHeaders)
+    outputMessage = '```TSQL\n' + columnHeaders + '\n' + rowOutput + '```'
+
+    return(outputMessage)
+
+def sanitize_inputs(message_object, pointer):
+    input = str(getattr(message_object, pointer))
+    input = re.sub("'", "''''", input)
+    return(input)
