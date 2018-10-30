@@ -10,7 +10,7 @@ class Plugin(object):
         self.pm = pm
 
     @staticmethod
-    def register_events(): #im putting this here because plugin manager is making me :(
+    def register_events(): 
         return [Events.Command("transact", desc='execute sql code'),
                 Events.Command("select", desc='execute sql code'),
                 Events.Command("messagestat", desc='execute sql code')]

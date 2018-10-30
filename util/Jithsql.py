@@ -11,10 +11,18 @@ pwd = 'jbdev'
 driver= '{ODBC Driver 13 for SQL Server}'
 
 def parse_connection():
+    """
+    Constructs the connection based on the given variables.
+    In the future, I plan to have this pull from a config file
+    """
     connection = pyodbc.connect('DRIVER='+driver+';PORT=1433;SERVER='+server+';PORT=1443;DATABASE='+database+';UID='+uid+';PWD='+ pwd)
     return(connection)
 
 def remove_command(command, message_object):
+    """
+    Separates the command and the command prefix from the message body,
+    as these are not needed for SQL functions
+    """
     message_object.content = re.sub('\\' + BotPreferences.BotPreferences.commandPrefix + command, '', message_object.content)
     if message_object.content.startswith(' '):
         message_object.content = message_object.content[1:]
@@ -22,6 +30,12 @@ def remove_command(command, message_object):
 
 
 def messagestat_formatting(messageBody):
+    """
+    Formats the message body for messagestat functions.
+    This mostly involves replacing spaces with underscores
+    and doubling up on quotations so that SQL server
+    ignores them
+    """
     messageBody = re.sub(' ', '_', messageBody)
     messageBody = re.sub("'", "''", messageBody)
     if messageBody.startswith('"') and messageBody.endswith('"'):
@@ -31,6 +45,13 @@ def messagestat_formatting(messageBody):
 
 
 def format_output(cursor):
+    """
+    This function is a giant mess and I need to fix
+    it at some point. This basically formats the output
+    so that it looks like SQLcmd, rather than the
+    mess that odbc spits out when returning data
+    from SQL
+    """
     #assign all the contents of the cursor to sqlOutput
     sqlOutput = cursor.fetchall()
 	#assign rowOutput to a blank value so it can be used with the += function
@@ -69,6 +90,10 @@ def format_output(cursor):
     return(outputMessage)
 
 def sanitize_inputs(message_object, pointer):
+    """
+    doubles up on quotation marks to get through two layers of manual
+    string executions. There is probably a better way to do this, but i'm dumb
+    """
     input = str(getattr(message_object, pointer))
     input = re.sub("'", "''''", input)
     return(input)

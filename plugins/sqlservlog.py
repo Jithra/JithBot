@@ -26,6 +26,7 @@ class Plugin(object):
             sql = "EXEC insert_into_table '" + ServerName + "','" + ServerID + "','" + UserName + "','" + UserMessage + "','" + UserChannel + "','" + UserID + "';"
             connection = Jithsql.parse_connection()
             cursor = connection.cursor()
+
             cursor.execute(sql)
             cursor.execute("COMMIT;")
             del cursor
