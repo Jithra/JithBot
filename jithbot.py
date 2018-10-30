@@ -27,7 +27,7 @@ async def on_ready():
     # Change nickname to nickname in configuration
     for instance in client.servers:
         await client.change_nickname(instance.me, pm.botPreferences.nickName)
-    await client.change_presence(game=discord.Game(name='Use ' + pm.botPreferences.commandPrefix + 'help for help'))
+    await client.change_presence(game=discord.Game(name='Evolving into a sentient being', type = 0))
 
 
 @client.event
