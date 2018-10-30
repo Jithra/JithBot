@@ -10,6 +10,7 @@ def parse_connection(self):
 
 def format_output(self, cursor):
         #assign all the contents of the cursor to sqlOutput
+        #adding this note to see if git picks up changes
         sqlOutput = cursor.fetchall()
 		#assign rowOutput to a blank value so it can be used with the += function
         rowOutput = ''
