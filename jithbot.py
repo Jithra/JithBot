@@ -49,6 +49,7 @@ async def on_message(message):
             traceback.print_exc()
 
 
+
 @client.event
 async def on_typing(channel, user, when):
     """

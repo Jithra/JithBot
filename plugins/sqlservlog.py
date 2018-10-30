@@ -1,3 +1,4 @@
+from PluginManager import PluginManager
 from util import Events
 import discord
 import re
@@ -18,7 +19,7 @@ class Plugin(object):
 
     async def handle_message(self, message_object):
 
-         if message_object.author.id != '295674371907780619':
+         if message_object.content.startswith(self.pm.botPreferences.commandPrefix) is False:
              #format server name, user name, and message contents to make them all SQL friendly.
             ServerName = await self.format_text(message_object, 'server')
             ServerID = str(message_object.server.id)
